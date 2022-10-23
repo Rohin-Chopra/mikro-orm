@@ -1,5 +1,5 @@
 import type { Dictionary } from '@mikro-orm/core';
-import { BigIntType, EnumType, Utils } from '@mikro-orm/core';
+import { BigIntType, EnumType, Type, Utils } from '@mikro-orm/core';
 import type { AbstractSqlConnection, Check, Column, DatabaseSchema, DatabaseTable, ForeignKey, Index, Table, TableDifference, Knex } from '@mikro-orm/knex';
 import { SchemaHelper } from '@mikro-orm/knex';
 
@@ -51,11 +51,15 @@ export class PostgreSqlSchemaHelper extends SchemaHelper {
   }
 
   async loadInformationSchema(schema: DatabaseSchema, connection: AbstractSqlConnection, tables: Table[]): Promise<void> {
+    const schemas = tables.length === 0 ? [schema.name] : tables.map(t => t.schema_name ?? schema.name);
+    const nativeEnums = await this.getNativeEnumDefinitions(connection, schemas);
+    schema.setNativeEnums(nativeEnums);
+
     if (tables.length === 0) {
       return;
     }
 
-    const columns = await this.getAllColumns(connection, tables);
+    const columns = await this.getAllColumns(connection, tables, nativeEnums);
     const indexes = await this.getAllIndexes(connection, tables);
     const checks = await this.getAllChecks(connection, tables);
     const fks = await this.getAllForeignKeys(connection, tables);
@@ -90,7 +94,7 @@ export class PostgreSqlSchemaHelper extends SchemaHelper {
     return ret;
   }
 
-  async getAllColumns(connection: AbstractSqlConnection, tables: Table[]): Promise<Dictionary<Column[]>> {
+  async getAllColumns(connection: AbstractSqlConnection, tables: Table[], nativeEnums?: Dictionary<string[]>): Promise<Dictionary<Column[]>> {
     const sql = `select table_schema as schema_name, table_name, column_name,
       column_default,
       is_nullable,
@@ -115,7 +119,7 @@ export class PostgreSqlSchemaHelper extends SchemaHelper {
       const increments = col.column_default?.includes('nextval') && connection.getPlatform().isNumericColumn(mappedType);
       const key = this.getTableKey(col);
       ret[key] ??= [];
-      ret[key].push({
+      const column: Column = {
         name: col.column_name,
         type: col.data_type.toLowerCase() === 'array' ? col.udt_name.replace(/^_(.*)$/, '$1[]') : col.udt_name,
         mappedType,
@@ -127,7 +131,15 @@ export class PostgreSqlSchemaHelper extends SchemaHelper {
         unsigned: increments,
         autoincrement: increments,
         comment: col.column_comment,
-      });
+      };
+
+      if (nativeEnums?.[column.type]) {
+        column.mappedType = Type.getType(EnumType);
+        column.nativeEnumName = column.type;
+        column.enumItems = nativeEnums[column.type];
+      }
+
+      ret[key].push(column);
     }
 
     return ret;
@@ -188,6 +200,20 @@ export class PostgreSqlSchemaHelper extends SchemaHelper {
     return ret;
   }
 
+  async getNativeEnumDefinitions(connection: AbstractSqlConnection, schemas: string[]): Promise<Dictionary<string[]>> {
+    const res = await connection.execute('select t.typname as enum_name, array_agg(e.enumlabel order by e.enumsortorder) as enum_value ' +
+      'from pg_type t ' +
+      'join pg_enum e on t.oid = e.enumtypid ' +
+      'join pg_catalog.pg_namespace n on n.oid = t.typnamespace ' +
+      'where n.nspname in (?) ' +
+      'group by t.typname', Utils.unique(schemas));
+
+    return res.reduce((o, row) => {
+      o[row.enum_name] = this.platform.unmarshallArray(row.enum_value);
+      return o;
+    }, {});
+  }
+
   async getEnumDefinitions(connection: AbstractSqlConnection, checks: Check[], tableName?: string, schemaName?: string): Promise<Dictionary<string[]>> {
     const found: number[] = [];
     const enums = checks.reduce((o, item, index) => {
@@ -231,6 +257,16 @@ export class PostgreSqlSchemaHelper extends SchemaHelper {
       }
 
       return table.increments(column.name, { primaryKey });
+    }
+
+    if (column.nativeEnumName && column.enumItems) {
+      console.log('fromTable.nativeEnums', fromTable.nativeEnums, new Error().stack);
+      return table.enum(column.name, column.enumItems, {
+        useNative: true,
+        enumName: column.nativeEnumName,
+        // schemaName: fromTable.schema, // FIXME?
+        existingType: column.nativeEnumName in fromTable.nativeEnums,
+      });
     }
 
     if (column.mappedType instanceof EnumType && column.enumItems?.every(item => Utils.isString(item))) {

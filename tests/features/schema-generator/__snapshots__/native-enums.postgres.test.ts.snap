@@ -1,0 +1,94 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`native enums in postgres enum diffing: postgres-update-schema-enums-1 1`] = `
+"create table "new_table" ("id" serial primary key, "enum_test" varchar(255) not null);
+
+alter table "enum_entity" alter column "type" type "enum_entity_type" using ("type"::"enum_entity_type");
+alter table "enum_entity" alter column "type2" type "enum_entity_type2" using ("type2"::"enum_entity_type2");
+alter table "enum_entity" alter column "enum2" type smallint using ("enum2"::smallint);
+alter table "enum_entity" alter column "enum3" type smallint using ("enum3"::smallint);
+alter table "enum_entity" alter column "enum4" type "enum4" using ("enum4"::"enum4");
+alter table "enum_entity" alter column "enum5" type "enum5" using ("enum5"::"enum5");
+
+"
+`;
+
+exports[`native enums in postgres enum diffing: postgres-update-schema-enums-2 1`] = `
+"alter table "new_table" alter column "enum_test" type text using ("enum_test"::text);
+alter table "new_table" add constraint "new_table_enum_test_check" check ("enum_test" in ('a', 'b'));
+
+alter table "enum_entity" alter column "type" type "enum_entity_type" using ("type"::"enum_entity_type");
+alter table "enum_entity" alter column "type2" type "enum_entity_type2" using ("type2"::"enum_entity_type2");
+alter table "enum_entity" alter column "enum2" type smallint using ("enum2"::smallint);
+alter table "enum_entity" alter column "enum3" type smallint using ("enum3"::smallint);
+alter table "enum_entity" alter column "enum4" type "enum4" using ("enum4"::"enum4");
+alter table "enum_entity" alter column "enum5" type "enum5" using ("enum5"::"enum5");
+
+"
+`;
+
+exports[`native enums in postgres enum diffing: postgres-update-schema-enums-3 1`] = `
+"alter table "new_table" drop constraint if exists "new_table_enum_test_check";
+
+alter table "new_table" alter column "enum_test" type text using ("enum_test"::text);
+alter table "new_table" add constraint "new_table_enum_test_check" check ("enum_test" in ('a', 'b', 'c'));
+
+alter table "enum_entity" alter column "type" type "enum_entity_type" using ("type"::"enum_entity_type");
+alter table "enum_entity" alter column "type2" type "enum_entity_type2" using ("type2"::"enum_entity_type2");
+alter table "enum_entity" alter column "enum2" type smallint using ("enum2"::smallint);
+alter table "enum_entity" alter column "enum3" type smallint using ("enum3"::smallint);
+alter table "enum_entity" alter column "enum4" type "enum4" using ("enum4"::"enum4");
+alter table "enum_entity" alter column "enum5" type "enum5" using ("enum5"::"enum5");
+
+"
+`;
+
+exports[`native enums in postgres generate schema from metadata [postgres]: postgres-create-schema-dump 1`] = `
+"set names 'utf8';
+set session_replication_role = 'replica';
+
+create table "new_table" ("id" serial primary key, "enum_test" text check ("enum_test" in ('a', 'b', 'c')) not null);
+
+create table "enum_entity" ("id" serial primary key, "type" "enum_entity_type" not null default 'local', "type2" "enum_entity_type2" not null default 'LOCAL', "enum2" smallint null, "enum3" smallint null, "enum4" "enum4" null, "enum5" "enum5" null);
+
+set session_replication_role = 'origin';
+"
+`;
+
+exports[`native enums in postgres generate schema from metadata [postgres]: postgres-drop-schema-dump 1`] = `
+"set names 'utf8';
+set session_replication_role = 'replica';
+
+drop table if exists "enum_entity" cascade;
+drop table if exists "new_table" cascade;
+
+set session_replication_role = 'origin';
+"
+`;
+
+exports[`native enums in postgres generate schema from metadata [postgres]: postgres-schema-dump 1`] = `
+"set names 'utf8';
+set session_replication_role = 'replica';
+
+create table "new_table" ("id" serial primary key, "enum_test" text check ("enum_test" in ('a', 'b', 'c')) not null);
+
+create table "enum_entity" ("id" serial primary key, "type" "enum_entity_type" not null default 'local', "type2" "enum_entity_type2" not null default 'LOCAL', "enum2" smallint null, "enum3" smallint null, "enum4" "enum4" null, "enum5" "enum5" null);
+
+set session_replication_role = 'origin';
+"
+`;
+
+exports[`native enums in postgres generate schema from metadata [postgres]: postgres-update-schema-dump 1`] = `
+"set names 'utf8';
+set session_replication_role = 'replica';
+
+alter table "enum_entity" alter column "type" type "enum_entity_type" using ("type"::"enum_entity_type");
+alter table "enum_entity" alter column "type2" type "enum_entity_type2" using ("type2"::"enum_entity_type2");
+alter table "enum_entity" alter column "enum2" type smallint using ("enum2"::smallint);
+alter table "enum_entity" alter column "enum3" type smallint using ("enum3"::smallint);
+alter table "enum_entity" alter column "enum4" type "enum4" using ("enum4"::"enum4");
+alter table "enum_entity" alter column "enum5" type "enum5" using ("enum5"::"enum5");
+
+set session_replication_role = 'origin';
+"
+`;

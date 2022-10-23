@@ -69,12 +69,21 @@ export class PostgreSqlConnection extends AbstractSqlConnection {
     const type = col.getColumnType();
     const colName = this.client.wrapIdentifier(col.getColumnName(), col.columnBuilder.queryContext());
     const constraintName = `${this.tableNameRaw.replace(/^.*\.(.*)$/, '$1')}_${col.getColumnName()}_check`;
-    that.dropColumnDefault.call(this, col, colName);
+    const useNative = col.args?.[2]?.useNative;
+    const alterType = col.columnBuilder.alterType;
+    const alterNullable = col.columnBuilder.alterNullable;
+    const defaultTo = col.modified.defaultTo;
+    console.log('addColumn', col.type, type, { useNative, alterType, alterNullable, defaultTo });
 
-    if (col.type === 'enu') {
+    // FIXME verify this wont break some tests
+    if (defaultTo != null) {
+      that.dropColumnDefault.call(this, col, colName);
+    }
+
+    if (col.type === 'enu' && !useNative) {
       this.pushQuery({ sql: `alter table ${quotedTableName} alter column ${colName} type text using (${colName}::text)`, bindings: [] });
       /* istanbul ignore else */
-      if (options.createForeignKeyConstraints) {
+      if (options.createForeignKeyConstraints && col.columnBuilder.alterNullable) {
         this.pushQuery({ sql: `alter table ${quotedTableName} add constraint "${constraintName}" ${type.replace(/^text /, '')}`, bindings: [] });
       }
     } else if (type === 'uuid') {

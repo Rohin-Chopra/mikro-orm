@@ -201,6 +201,7 @@ export class SchemaGenerator extends AbstractSchemaGenerator<AbstractSqlDriver> 
     const wildcardSchemaTables = Object.values(this.metadata.getAll()).filter(meta => meta.schema === '*').map(meta => meta.tableName);
     fromSchema.prune(options.schema, wildcardSchemaTables);
     toSchema.prune(options.schema, wildcardSchemaTables);
+    toSchema.setNativeEnums(fromSchema.getNativeEnums());
 
     return { fromSchema, toSchema };
   }

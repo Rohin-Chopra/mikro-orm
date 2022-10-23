@@ -17,4 +17,6 @@ export function Enum(options: EnumOptions<AnyEntity> | (() => Dictionary) = {}) 
 export interface EnumOptions<T> extends PropertyOptions<T> {
   items?: (number | string)[] | (() => Dictionary);
   array?: boolean;
+  /** for postgres, by default it uses text column with check constraint */
+  nativeEnumName?: string;
 }

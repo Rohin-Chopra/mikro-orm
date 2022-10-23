@@ -117,7 +117,11 @@ export class PostgreSqlPlatform extends AbstractSqlPlatform {
     return 'double precision';
   }
 
-  getEnumTypeDeclarationSQL(column: { fieldNames: string[]; items?: unknown[] }): string {
+  getEnumTypeDeclarationSQL(column: { fieldNames: string[]; items?: unknown[]; nativeEnumName?: string }): string {
+    if (column.nativeEnumName) {
+      return column.nativeEnumName;
+    }
+
     if (column.items?.every(item => Utils.isString(item))) {
       return 'text';
     }

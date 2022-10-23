@@ -581,6 +581,7 @@ export class SchemaComparator {
     }
 
     this.logger.log('schema', message);
+    console.log('schema', message);
   }
 
 }

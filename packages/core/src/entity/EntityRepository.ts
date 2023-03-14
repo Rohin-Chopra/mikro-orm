@@ -1,6 +1,6 @@
 import type { CreateOptions, EntityManager, MergeOptions } from '../EntityManager';
 import type { AssignOptions } from './EntityAssigner';
-import type { EntityData, EntityName, AnyEntity, Primary, Loaded, FilterQuery, EntityDictionary, AutoPath, RequiredEntityData, Ref } from '../typings';
+import type { EntityData, EntityName, Primary, Loaded, FilterQuery, EntityDictionary, AutoPath, RequiredEntityData, Ref } from '../typings';
 import type {
   CountOptions,
   DeleteOptions,
@@ -18,24 +18,8 @@ import type { Cursor } from '../utils/Cursor';
 
 export class EntityRepository<T extends object> {
 
-  constructor(protected readonly _em: EntityManager,
+  constructor(protected readonly em: EntityManager,
               protected readonly entityName: EntityName<T>) { }
-
-  /**
-   * Tells the EntityManager to make an instance managed and persistent.
-   * The entity will be entered into the database at or before transaction commit or as a result of the flush operation.
-   */
-  persist(entity: AnyEntity | AnyEntity[]): EntityManager {
-    return this.em.persist(entity);
-  }
-
-  /**
-   * Persists your entity immediately, flushing all not yet persisted changes to the database too.
-   * Equivalent to `em.persist(e).flush()`.
-   */
-  async persistAndFlush(entity: AnyEntity | AnyEntity[]): Promise<void> {
-    await this.em.persistAndFlush(entity);
-  }
 
   /**
    * Finds first entity matching your `where` query.
@@ -135,34 +119,6 @@ export class EntityRepository<T extends object> {
    */
   async findAll<P extends string = never>(options?: FindOptions<T, P>): Promise<Loaded<T, P>[]> {
     return this.em.find<T, P>(this.entityName, {} as FilterQuery<T>, options);
-  }
-
-  /**
-   * Marks entity for removal.
-   * A removed entity will be removed from the database at or before transaction commit or as a result of the flush operation.
-   *
-   * To remove entities by condition, use `em.nativeDelete()`.
-   */
-  remove(entity: AnyEntity): EntityManager {
-    return this.em.remove(entity);
-  }
-
-  /**
-   * Removes an entity instance immediately, flushing all not yet persisted changes to the database too.
-   * Equivalent to `em.remove(e).flush()`
-   */
-  async removeAndFlush(entity: AnyEntity): Promise<void> {
-    await this.em.removeAndFlush(entity);
-  }
-
-  /**
-   * Flushes all changes to objects that have been queued up to now to the database.
-   * This effectively synchronizes the in-memory state of managed objects with the database.
-   * This method is a shortcut for `em.flush()`, in other words, it will flush the whole UoW,
-   * not just entities registered via this particular repository.
-   */
-  async flush(): Promise<void> {
-    return this.em.flush();
   }
 
   /**
@@ -268,10 +224,6 @@ export class EntityRepository<T extends object> {
    */
   async count<P extends string = never>(where: FilterQuery<T> = {} as FilterQuery<T>, options: CountOptions<T, P> = {}): Promise<number> {
     return this.em.count<T, P>(this.entityName, where, options);
-  }
-
-  protected get em(): EntityManager {
-    return this._em;
   }
 
 }

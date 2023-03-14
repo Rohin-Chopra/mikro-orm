@@ -6,9 +6,9 @@ import type { QueryBuilder } from './query';
 
 export class SqlEntityRepository<T extends object> extends EntityRepository<T> {
 
-  constructor(protected override readonly _em: SqlEntityManager,
+  constructor(protected override readonly em: SqlEntityManager,
               entityName: EntityName<T>) {
-    super(_em, entityName);
+    super(em, entityName);
   }
 
   /**
@@ -30,10 +30,6 @@ export class SqlEntityRepository<T extends object> extends EntityRepository<T> {
    */
   getKnex(type?: ConnectionType): Knex {
     return this.em.getConnection(type).getKnex();
-  }
-
-  protected override get em(): SqlEntityManager {
-    return this._em.getContext(false);
   }
 
 }

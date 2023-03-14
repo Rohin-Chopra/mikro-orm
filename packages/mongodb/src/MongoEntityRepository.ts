@@ -5,9 +5,9 @@ import type { MongoEntityManager } from './MongoEntityManager';
 
 export class MongoEntityRepository<T extends object> extends EntityRepository<T> {
 
-  constructor(protected override readonly _em: MongoEntityManager,
+  constructor(protected override readonly em: MongoEntityManager,
               entityName: EntityName<T>) {
-    super(_em, entityName);
+    super(em, entityName);
   }
 
   /**
@@ -18,11 +18,7 @@ export class MongoEntityRepository<T extends object> extends EntityRepository<T>
   }
 
   getCollection(): Collection<T> {
-    return this._em.getConnection().getCollection(this.entityName);
-  }
-
-  protected override get em(): MongoEntityManager {
-    return this._em.getContext(false);
+    return this.em.getConnection().getCollection(this.entityName);
   }
 
 }

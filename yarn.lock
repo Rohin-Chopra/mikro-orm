@@ -2221,7 +2221,7 @@ __metadata:
     "@mikro-orm/core": ^5.6.15
     "@mikro-orm/mongodb": ~5.6.15
     fs-extra: 11.1.1
-    mongodb: 4.13.0
+    mongodb: 5.1.0
     umzug: 3.2.1
   peerDependencies:
     "@mikro-orm/core": ^5.0.0
@@ -2257,7 +2257,7 @@ __metadata:
   dependencies:
     "@mikro-orm/core": ^5.6.15
     bson: ^4.7.0
-    mongodb: 4.13.0
+    mongodb: 5.1.0
   peerDependencies:
     "@mikro-orm/core": ^5.0.0
     "@mikro-orm/entity-generator": ^5.0.0
@@ -2361,7 +2361,7 @@ __metadata:
     jest: 29.5.0
     lerna: 6.6.1
     lint-staged: 13.2.0
-    mongodb: 4.13.0
+    mongodb: 5.1.0
     mongodb-memory-server: ^8.10.0
     node-gyp: ^9.3.0
     rimraf: 4.4.1
@@ -4139,6 +4139,13 @@ __metadata:
   dependencies:
     buffer: ^5.6.0
   checksum: 83e7b64afdad5a505073a7e6206e7b345f59e7888fbcb1948fba72b6101a1baf58b7499314f8e24b650567665f7973eda048aabbb1ddcfbadfba7d6c6b0f5e83
+  languageName: node
+  linkType: hard
+
+"bson@npm:^5.0.1":
+  version: 5.1.0
+  resolution: "bson@npm:5.1.0"
+  checksum: 5e1c6235b7bc5c788116f077a076bb2fa227e8dc5ad472277c5931c0b82b747edb08c5eb4f511823c895d35c707917f6a16b8f3207104b8559dc83524706cc4a
   languageName: node
   linkType: hard
 
@@ -8544,6 +8551,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mongodb-connection-string-url@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "mongodb-connection-string-url@npm:2.6.0"
+  dependencies:
+    "@types/whatwg-url": ^8.2.1
+    whatwg-url: ^11.0.0
+  checksum: 1d662f0ecfe96f7a400f625c244b2e52914c98f3562ee7d19941127578b5f8237624433bdcea285a654041b945b518803512989690c74548aec5860c5541c605
+  languageName: node
+  linkType: hard
+
 "mongodb-memory-server-core@npm:8.10.0":
   version: 8.10.0
   resolution: "mongodb-memory-server-core@npm:8.10.0"
@@ -8578,21 +8595,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:4.13.0":
-  version: 4.13.0
-  resolution: "mongodb@npm:4.13.0"
+"mongodb@npm:5.1.0":
+  version: 5.1.0
+  resolution: "mongodb@npm:5.1.0"
   dependencies:
-    "@aws-sdk/credential-providers": ^3.186.0
-    bson: ^4.7.0
-    mongodb-connection-string-url: ^2.5.4
+    bson: ^5.0.1
+    mongodb-connection-string-url: ^2.6.0
     saslprep: ^1.0.3
     socks: ^2.7.1
+  peerDependencies:
+    "@aws-sdk/credential-providers": ^3.201.0
+    mongodb-client-encryption: ^2.3.0
+    snappy: ^7.2.2
   dependenciesMeta:
-    "@aws-sdk/credential-providers":
-      optional: true
     saslprep:
       optional: true
-  checksum: 4c30eed40f639ac64069623cf7a4954e98eab81b91d61df90e7813dd2a745259cdc698f3b60bd7f37c123242b7eb0aaae6ee4e29ff2e48f5d13f187931d51f36
+  peerDependenciesMeta:
+    "@aws-sdk/credential-providers":
+      optional: true
+    mongodb-client-encryption:
+      optional: true
+    snappy:
+      optional: true
+  checksum: 993c14299ade84d4aadb06f16dccf31502b1018bf7a813d2477bf7a465854d3545a8950372e4410cd549c4426cf02b5d18cc4467eba35d031b46536e5cc79e3f
   languageName: node
   linkType: hard
 
